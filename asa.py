@@ -64,31 +64,7 @@ class ArSentiment(object):
         info("--- Sentiment CLASSIFIERS ---")
         info("fitting ... ")
 
-        # classifiers to use
-        classifiers = [
-            RandomForestClassifier(n_estimators=100),
-            SGDClassifier(loss='log', penalty='l1'),
-            LinearSVC(C=1e1),
-            NuSVC(),
-            LogisticRegressionCV(solver='liblinear'),
-            GaussianNB(),
-        ]
-
         self.accuracies = {}
-
-        # RUN classifiers
-        for c in classifiers:
-            self.classify(c, detailed, plot_roc)
-
-        avg_f1 = 0
-        info('results ...')
-        for k, v in self.accuracies.items():
-            string = '\tMacAvg. {:.2f}% F1. {:.2f}% P. {:.2f} R. {:.2f} : {}'
-            print(string.format(v[0] * 100, v[1] * 100, v[2] * 100, v[3] * 100, k))
-            avg_f1 += float(v[1])
-
-        #print('OVERALL avg F1 test {:.2f}%'.format((avg_f1 / len(self.accuracies)) * 100))
-        info("DONE!")
 
     @staticmethod
     def load_vectors(model_name, binary=True):
@@ -257,4 +233,16 @@ if __name__ == "__main__":
     dataset_path = args.dataset if args.dataset else "datasets/mpqa-ar.csv"
 
     # run
-    ArSentiment(embeddings_path, dataset_path, plot_roc=False)
+    learner = ArSentiment(embeddings_path, dataset_path, plot_roc=False)
+
+    # RUN classifiers
+    classifiers = [
+        RandomForestClassifier(n_estimators=100),
+        SGDClassifier(loss='log', penalty='l1'),
+        LinearSVC(C=1e1),
+        NuSVC(),
+        LogisticRegressionCV(solver='liblinear'),
+        GaussianNB(),
+    ]
+    for c in classifiers:
+        learner.classify(c, False, False)
